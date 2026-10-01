@@ -1,6 +1,7 @@
 # yaml-polyfill
 
-A pure-PHP polyfill for the PECL php-yaml extension, written for PHP 8.2+.
+A pure-PHP polyfill for the [php-yaml](https://bd808.com/pecl-file_formats-yaml/)
+extension, written for PHP 8.2+.
 
 This library provides the same core API — `yaml_emit()`, `yaml_parse()`, and
 friends — as a single, dependency-free PHP file, so projects that need simple,
