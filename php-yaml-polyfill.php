@@ -27,7 +27,7 @@ foreach ([
     }
 }
 
-if (!function_exists('_yaml_emit_scalar')) {
+if (!function_exists('yaml_emit')) {
     function _yaml_emit_string(string $s): string
     {
         $needs = $s === '' || $s !== trim($s)
@@ -133,9 +133,7 @@ if (!function_exists('_yaml_emit_scalar')) {
         }
         return $lines;
     }
-}
 
-if (!function_exists('yaml_emit')) {
     function yaml_emit(mixed $data, int $encoding = YAML_ANY_ENCODING, int $linebreak = YAML_ANY_BREAK): string
     {
         $data = _yaml_emit_normalize($data);

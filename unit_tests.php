@@ -12,7 +12,6 @@ $src = str_replace(
     ['if (true) {', 'function yaml_emit_polyfill('],
     $src
 );
-$src = str_replace("if (!function_exists('_yaml_emit_scalar')) {", 'if (!function_exists("_yaml_emit_scalar")) {', $src);
 eval($src);
 
 $pass = 0;
