@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Standalone tests for the yaml_emit()/yaml_parse() polyfill.
-// Run: php unit_tests.php [--filter=REGEX]  (case-insensitive, on check name)
+// Run: php unit_tests.php [--filter=REGEX] [--simple]  (case-insensitive, on check name)
 
 // Load the polyfill under another name so it is tested even if the PECL
 // extension is installed.
@@ -29,7 +29,10 @@ $pass = 0;
 $fail = 0;
 $skip = 0;
 
-$filter = getopt('', ['filter:'])['filter'] ?? null;
+$opts   = getopt('', ['filter:', 'simple']);
+$filter = $opts['filter'] ?? null;
+$simple = isset($opts['simple']);
+
 if ($filter !== null) {
     $filter = '/' . str_replace('/', '\/', (string)$filter) . '/i';
     if (@preg_match($filter, '') === false) {
@@ -48,14 +51,16 @@ function color(string $s, string $code): string
 
 function check(string $name, mixed $expected, mixed $actual): void
 {
-    global $pass, $fail, $skip, $filter;
+    global $pass, $fail, $skip, $filter, $simple;
     if ($filter !== null && !preg_match($filter, $name)) {
         $skip++;
         return;
     }
     if ($expected === $actual) {
         $pass++;
-        echo color("PASS", "32") . "  $name\n";
+        if (!$simple) {
+            echo color("PASS", "32") . "  $name\n";
+        }
     } else {
         $fail++;
         echo color("FAIL", "31") . "  $name\n";

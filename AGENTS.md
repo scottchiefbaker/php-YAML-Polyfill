@@ -10,6 +10,8 @@ Two-file PHP 8.2+ project (no manifest, no CI): `yaml-polyfill.php` is a
 - Run tests: `php unit_tests.php` (set `NO_COLOR=1` to disable colors).
   Run a subset: `php unit_tests.php --filter=REGEX` (case-insensitive, matched
   against check names; exits 1 if nothing matches).
+  Quiet output: `--simple` only prints failing checks (with expected/actual
+  diffs) and the summary line; composes with `--filter`.
 - Tests do not `include` the polyfill. They read `yaml-polyfill.php`,
   regex/str_replace its source (strips `declare(strict_types=1)`, renames
   `yaml_emit`/`yaml_parse` -> `*_polyfill`, forces both `function_exists`
