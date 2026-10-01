@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Basic yaml_emit() and yaml_parse() polyfill (PHP 8.2+).
+ * Basic yaml_emit(), yaml_parse(), yaml_emit_file(), yaml_parse_file()
+ * and yaml_parse_url() polyfill (PHP 8.2+).
  *
  * Produces valid, readable YAML; not byte-identical to libyaml.
  * Limitations:
@@ -398,5 +399,34 @@ if (!function_exists('yaml_parse')) {
             trigger_error('yaml_parse(): ' . $e->getMessage(), E_USER_WARNING);
             return false;
         }
+    }
+}
+
+if (!function_exists('yaml_emit_file')) {
+    function yaml_emit_file(string $filename, mixed $data, int $encoding = YAML_ANY_ENCODING, int $linebreak = YAML_ANY_BREAK): bool
+    {
+        return file_put_contents($filename, yaml_emit($data, $encoding, $linebreak)) !== false;
+    }
+}
+
+if (!function_exists('yaml_parse_file')) {
+    function yaml_parse_file(string $filename, int $pos = 0, ?int &$ndocs = null, array $callbacks = []): mixed
+    {
+        $input = file_get_contents($filename);
+        if ($input === false) {
+            return false;
+        }
+        return yaml_parse($input, $pos, $ndocs, $callbacks);
+    }
+}
+
+if (!function_exists('yaml_parse_url')) {
+    function yaml_parse_url(string $url, int $pos = 0, ?int &$ndocs = null, array $callbacks = []): mixed
+    {
+        $input = file_get_contents($url);
+        if ($input === false) {
+            return false;
+        }
+        return yaml_parse($input, $pos, $ndocs, $callbacks);
     }
 }

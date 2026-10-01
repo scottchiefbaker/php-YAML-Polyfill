@@ -9,8 +9,18 @@ declare(strict_types=1);
 $src = file_get_contents(__DIR__ . '/php-yaml-polyfill.php');
 $src = preg_replace('/^<\?php\s*declare\(strict_types=1\);/', '', $src);
 $src = str_replace(
-    ["if (!function_exists('yaml_emit')) {", "if (!function_exists('yaml_parse')) {", 'function yaml_emit(', 'function yaml_parse('],
-    ['if (true) {', 'if (true) {', 'function yaml_emit_polyfill(', 'function yaml_parse_polyfill('],
+    [
+        "if (!function_exists('yaml_emit')) {", "if (!function_exists('yaml_parse')) {",
+        "if (!function_exists('yaml_emit_file')) {", "if (!function_exists('yaml_parse_file')) {",
+        "if (!function_exists('yaml_parse_url')) {",
+        'function yaml_emit(', 'function yaml_parse(', 'function yaml_emit_file(', 'function yaml_parse_file(', 'function yaml_parse_url(',
+        'yaml_emit($data, $encoding, $linebreak)', 'yaml_parse($input, $pos, $ndocs, $callbacks)',
+    ],
+    [
+        'if (true) {', 'if (true) {', 'if (true) {', 'if (true) {', 'if (true) {',
+        'function yaml_emit_polyfill(', 'function yaml_parse_polyfill(', 'function yaml_emit_file_polyfill(', 'function yaml_parse_file_polyfill(', 'function yaml_parse_url_polyfill(',
+        'yaml_emit_polyfill($data, $encoding, $linebreak)', 'yaml_parse_polyfill($input, $pos, $ndocs, $callbacks)',
+    ],
     $src
 );
 eval($src);
@@ -216,6 +226,21 @@ foreach ([
 ] as $name => $data) {
     check("round trip $name", $data, p(e($data)));
 }
+
+// File functions
+$tmp = tempnam(sys_get_temp_dir(), 'yml');
+
+check('emit_file returns true', true                      , yaml_emit_file_polyfill($tmp, ['a' => [1, 2]]));
+check('emit_file content'     , "---\na:\n- 1\n- 2\n...\n", file_get_contents($tmp));
+check('parse_file reads back' , ['a' => [1, 2]]           , yaml_parse_file_polyfill($tmp, 0, $nd));
+check('parse_file ndocs'      , 1                         , $nd);
+
+check('parse_url file:// reads', ['a' => [1, 2]], yaml_parse_url_polyfill('file://' . $tmp, 0, $nd2));
+check('parse_url ndocs', 1, $nd2);
+unlink($tmp);
+check('parse_url missing returns false', false, @yaml_parse_url_polyfill('file://' . $tmp));
+check('parse_file missing returns false', false, @yaml_parse_file_polyfill($tmp));
+check('emit_file bad path returns false', false, @yaml_emit_file_polyfill('/nonexistent-dir/x.yml', 1));
 
 // Constants
 foreach (['YAML_ANY_ENCODING', 'YAML_UTF8_ENCODING', 'YAML_UTF16LE_ENCODING', 'YAML_UTF16BE_ENCODING',
