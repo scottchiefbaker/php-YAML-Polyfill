@@ -278,6 +278,7 @@ foreach (['YAML_ANY_ENCODING', 'YAML_UTF8_ENCODING', 'YAML_UTF16LE_ENCODING', 'Y
           'YAML_ANY_BREAK', 'YAML_CR_BREAK', 'YAML_LN_BREAK', 'YAML_CRLN_BREAK'] as $c) {
     check("constant $c defined", true, defined($c));
 }
+check('constant YAML_POLYFILL defined', true, defined('YAML_POLYFILL'));
 
 echo "\n" . color("$pass passed", "32") . ", " . color("$fail failed", $fail > 0 ? "31" : "32")
     . ($filter !== null ? ", $skip skipped" : '') . "\n";

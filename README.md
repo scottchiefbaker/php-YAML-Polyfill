@@ -28,6 +28,10 @@ If you need byte-exact fidelity to libyaml, use the PECL extension.
   `YAML_UTF16BE_ENCODING`, `YAML_ANY_BREAK`, `YAML_CR_BREAK`,
   `YAML_LN_BREAK`, and `YAML_CRLN_BREAK` constants are defined when the
   PECL extension isn't loaded, for API parity.
+- `YAML_POLYFILL` is defined (as `true`) when this polyfill's
+  implementations are the ones in use; it is never defined when the PECL
+  extension is active, so `defined('YAML_POLYFILL')` detects at runtime
+  which library is providing the `yaml_*()` functions.
 - The `$encoding` and `$linebreak` parameters are accepted for API parity;
   output is always UTF-8 with LF, CR, or CRLF line breaks.
 - Errors are intentional and well-behaved: parse/emit failures raise an

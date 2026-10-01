@@ -29,6 +29,10 @@ foreach ([
 }
 
 if (!function_exists('yaml_emit')) {
+    if (!defined('YAML_POLYFILL')) {
+        define('YAML_POLYFILL', true);
+    }
+
     function _yaml_emit_string(string $s): string
     {
         $needs = $s === '' || $s !== trim($s)
