@@ -3,8 +3,8 @@
 A pure-PHP polyfill for the [php-yaml](https://bd808.com/pecl-file_formats-yaml/)
 extension, written for PHP 8.2+.
 
-This library provides the same core API — `yaml_emit()`, `yaml_parse()`, and
-friends — as a single, dependency-free PHP file, so projects that need simple,
+This library provides the same core API - `yaml_emit()`, `yaml_parse()`, and
+friends - as a single, dependency-free PHP file, so projects that need simple,
 reliable YAML input/output don't have to install a C extension.
 
 It aims to cover roughly 90% of real-world YAML usage. Output is valid,
@@ -13,10 +13,10 @@ If you need byte-exact fidelity to libyaml, use the PECL extension.
 
 ## Features
 
-- `yaml_emit($data, $encoding, $linebreak)` — serialize nested arrays,
+- `yaml_emit($data, $encoding, $linebreak)` - serialize nested arrays,
   scalars, and simple objects to block-style YAML. Also
   `yaml_emit_file($filename, $data, ...)`.
-- `yaml_parse($input, $pos, &$ndocs, $callbacks)` — parse plain, quoted,
+- `yaml_parse($input, $pos, &$ndocs, $callbacks)` - parse plain, quoted,
   and block scalars, block mappings and sequences, single-line flow
   collections, comments, and multi-document streams (first document).
   Also `yaml_parse_file($filename, ...)` and `yaml_parse_url($url, ...)`.
@@ -38,7 +38,7 @@ If you need byte-exact fidelity to libyaml, use the PECL extension.
 - Errors are intentional and well-behaved: parse/emit failures raise an
   `E_USER_WARNING` and return `false`, matching PECL behavior rather than
   throwing exceptions.
-- **Zero dependencies** — PHP 8.2+ core only, no extensions required.
+- **Zero dependencies** - PHP 8.2+ core only, no extensions required.
 
 ## Requirements
 
