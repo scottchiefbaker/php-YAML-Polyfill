@@ -8,7 +8,7 @@ Two-file PHP 8.2+ project (no manifest, no CI): `yaml-polyfill.php` is a
   use cases and leave niche features to the full PECL library. Prefer
   simplicity over completeness; don't add complexity for rare edge cases.
 - Run tests: `php unit_tests.php` (set `NO_COLOR=1` to disable colors).
-  Run a subset: `php unit_tests.php --filter=REGEX` (case-insensitive, matched
+  Run a subset: `php unit_tests.php --filter=REGEX` (also `-f`; case-insensitive, matched
   against check names; exits 1 if nothing matches).
   Quiet output: `--simple` only prints failing checks (with expected/actual
   diffs) and the summary line; composes with `--filter`.

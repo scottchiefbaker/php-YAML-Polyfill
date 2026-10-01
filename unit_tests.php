@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Standalone tests for the yaml_emit()/yaml_parse() polyfill.
-// Run: php unit_tests.php [--filter=REGEX] [--simple]  (case-insensitive, on check name)
+// Run: php unit_tests.php [-f|--filter=REGEX] [--simple]  (case-insensitive, on check name)
 
 // Load the polyfill under another name so it is tested even if the PECL
 // extension is installed.
@@ -29,8 +29,8 @@ $pass = 0;
 $fail = 0;
 $skip = 0;
 
-$opts   = getopt('', ['filter:', 'simple']);
-$filter = $opts['filter'] ?? null;
+$opts   = getopt('f:', ['filter:', 'simple']);
+$filter = $opts['filter'] ?? $opts['f'] ?? null;
 $simple = isset($opts['simple']);
 
 if ($filter !== null) {
