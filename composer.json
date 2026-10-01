@@ -1,0 +1,34 @@
+{
+    "name": "scottchiefbaker/yaml-polyfill",
+    "description": "Pure-PHP polyfill for the PECL php-yaml extension: yaml_emit(), yaml_parse(), and friends (PHP 8.2+, zero dependencies)",
+    "type": "library",
+    "license": "GPL-2.0-only",
+    "keywords": [
+        "yaml",
+        "polyfill",
+        "php-yaml",
+        "yaml_emit",
+        "yaml_parse"
+    ],
+    "authors": [
+        {
+            "name": "Scott Baker",
+            "homepage": "https://github.com/scottchiefbaker"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/scottchiefbaker/php-YAML-Polyfill/issues",
+        "source": "https://github.com/scottchiefbaker/php-YAML-Polyfill"
+    },
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "files": [
+            "yaml-polyfill.php"
+        ]
+    },
+    "scripts": {
+        "test": "php unit_tests.php"
+    }
+}

@@ -46,15 +46,23 @@ If you need byte-exact fidelity to libyaml, use the PECL extension.
 
 ## Installation
 
-Drop the file somewhere your autoloader (or `require` path) can find it, and
-require it once:
+Install with [Composer](https://getcomposer.org/):
+
+```
+composer require scottchiefbaker/yaml-polyfill
+```
+
+The polyfill registers itself with the `files` autoloader, so simply having
+it installed loads it via `vendor/autoload.php`. Every public function is
+wrapped in a `function_exists()` guard, so it is safe to load even when the
+real PECL yaml extension is installed.
+
+Or, if you'd rather not use Composer, drop the file somewhere your autoloader
+(or `require` path) can find it, and require it once:
 
 ```php
 require_once('/path/to/yaml-polyfill.php');
 ```
-
-Every public function is wrapped in a `function_exists()` guard, so it is
-safe to load even when the real PECL yaml extension is installed.
 
 ## Usage
 
