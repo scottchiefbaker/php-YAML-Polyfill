@@ -225,6 +225,21 @@ check('parse flow trailing text'              , false                           
 check('parse flow key without value'          , false                                       , p("{a}"));
 check('parse flow complex key'                , false                                       , p("{[a]: 1}"));
 check('parse flow empty entry'                , false                                       , p("[a,,b]"));
+check('parse block literal'                   , ['a' => "x\n  y\n\nz\n", 'b' => 1]            , p("a: |\n  x\n    y\n\n  z\nb: 1\n"));
+check('parse block literal strip'             , ['a' => "x\ny"]                             , p("a: |-\n  x\n  y\n"));
+check('parse block folded'                    , ['a' => "x y\nz\n"]                          , p("a: >\n  x\n  y\n\n  z\n"));
+check('parse block folded strip'              , ['a' => 'x y']                              , p("a: >-\n  x\n  y\n"));
+check('parse block explicit indent'           , ['a' => "  x\n"]                            , p("a: |2\n    x\n"));
+check('parse block in list'                   , ["x\n", ['k' => "y\n", 'm' => 2]]           , p("- |\n  x\n- k: |\n    y\n  m: 2\n"));
+check('parse block top level'                 , "x\n# y\n"                                  , p("--- |\n  x\n  # y\n"));
+check('parse block keeps content literal'     , ['a' => "k: v # c \"q\" \\\n"]              , p("a: |\n  k: v # c \"q\" \\\n"));
+check('parse block stays string'              , ['a' => "123\n"]                            , p("a: |\n  123\n"));
+check('parse block header comment'            , ['a' => "x\n"]                              , p("a: | # note\n  x\n"));
+check('parse block empty'                     , ['a' => '', 'b' => 1]                       , p("a: |\nb: 1\n"));
+check('parse block CRLF'                      , ['a' => "x\ny\n"]                           , p("a: |\r\n  x\r\n  y\r\n"));
+check('parse block keep chomping rejected'    , false                                       , p("a: |+\n  x\n"));
+check('parse block bad indent'                , false                                       , p("a: |\n    x\n  y\n"));
+check('parse block not a header'              , ['a' => 'x |', 'b' => '|x']                 , p("a: x |\nb: '|x'\n"));
 check('parse bad indent returns false'        , false                                       , p("a:\n    b: 1\n  c: 2\n"));
 check('parse unterminated quote returns false', false                                       , p("a: \"x\n"));
 check('parse warns on error', true, (function () {

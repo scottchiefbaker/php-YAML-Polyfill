@@ -440,17 +440,91 @@ if (!function_exists('yaml_parse')) {
     }
 
     /**
+     * If $text is a block scalar header ("key: |", "- >-", "|2" after "---"),
+     * consumes the content lines that follow $raws[$r] (advancing $r) and returns
+     * the header re-written with the content as a double-quoted scalar.
+     */
+    function _yaml_parse_block_scalar(array $raws, int &$r, string $text, int $ind, bool $isDoc): ?string
+    {
+        if (!preg_match('/^((?:-[ ]+)*)(.+?:[ ]+)?([|>])([-+1-9]{0,2})$/', $text, $m)
+            || !preg_match('/^(?:[1-9][-+]?|[-+][1-9]?)?$/', $m[4])
+            || (!$isDoc && $m[1] === '' && $m[2] === '')) {
+            return null;
+        }
+        [, $dashes, $key, $style, $mods] = $m;
+        if (str_contains($mods, '+')) {
+            throw new RuntimeException('keep chomping (+) is not supported');
+        }
+        if ($isDoc) {
+            $parent = -1;
+        } elseif ($key !== '') {
+            $parent = $ind + strlen($dashes);
+        } else {
+            $parent = $ind + strlen($dashes) - 2;
+        }
+        $explicit = (int)preg_replace('/\D/', '', $mods);
+        $ci = $explicit > 0 ? max($parent, 0) + $explicit : 0;
+        $lines = [];
+        for ($j = $r + 1, $n = count($raws); $j < $n; $j++) {
+            $raw = $raws[$j];
+            if (trim($raw) === '') {
+                $lines[] = '';
+                continue;
+            }
+            $lead = strlen($raw) - strlen(ltrim($raw, ' '));
+            if ($lead <= $parent || ($isDoc && ($raw === '---' || $raw === '...' || str_starts_with($raw, '--- ')))) {
+                break;
+            }
+            if ($ci === 0) {
+                $ci = $lead;
+            } elseif ($lead < $ci) {
+                throw new RuntimeException('bad indentation in block scalar');
+            }
+            $lines[] = substr($raw, $ci);
+        }
+        $r = $j - 1;
+        while ($lines && end($lines) === '') {
+            array_pop($lines);
+        }
+        if ($style === '|') {
+            $str = implode("\n", $lines);
+        } else {
+            $str = '';
+            $prevText = false;
+            foreach ($lines as $l) {
+                if ($l === '') {
+                    $str .= "\n";
+                    $prevText = false;
+                } else {
+                    $str .= ($prevText ? ' ' : '') . $l;
+                    $prevText = true;
+                }
+            }
+        }
+        if ($lines && !str_contains($mods, '-')) {
+            $str .= "\n";
+        }
+        $json = json_encode($str, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            throw new RuntimeException('invalid UTF-8 in block scalar');
+        }
+        return $dashes . $key . $json;
+    }
+
+    /**
      * Basic yaml_parse(): block mappings/sequences, plain and quoted scalars,
      * comments. $pos, $callbacks are ignored; only the first document is read.
-     * Flow collections are supported on a single line only. Not supported:
-     * block scalars (| and >), anchors, tags, multi-line scalars.
+     * Flow collections are supported on a single line only. Block scalars
+     * (| and >) are supported with clip/strip chomping (no +). Not supported:
+     * anchors, tags, multi-line plain/quoted scalars.
      */
     function yaml_parse(string $input, int $pos = 0, ?int &$ndocs = null, array $callbacks = []): mixed
     {
         try {
             $L = [];
-            foreach (preg_split('/\r\n|\n|\r/', $input) as $raw) {
-                $line = _yaml_parse_strip($raw);
+            $raws = preg_split('/\r\n|\n|\r/', $input);
+            for ($r = 0; $r < count($raws); $r++) {
+                $line = _yaml_parse_strip($raws[$r]);
                 $text = ltrim($line, ' ');
                 if ($text === '') {
                     continue;
@@ -465,14 +539,14 @@ if (!function_exists('yaml_parse')) {
                     }
                     $rest = trim(substr($text, 3));
                     if ($rest !== '') {
-                        $L[] = [0, $rest];
+                        $L[] = [0, _yaml_parse_block_scalar($raws, $r, $rest, 0, true) ?? $rest];
                     }
                 } elseif ($text === '...') {
                     break;
                 } elseif ($text[0] === '%' && !$L) {
                     continue;
                 } else {
-                    $L[] = [$ind, $text];
+                    $L[] = [$ind, _yaml_parse_block_scalar($raws, $r, $text, $ind, false) ?? $text];
                 }
             }
             $ndocs = 1;
