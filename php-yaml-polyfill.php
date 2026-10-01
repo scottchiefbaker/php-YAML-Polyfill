@@ -226,6 +226,91 @@ if (!function_exists('yaml_parse')) {
         }, $body);
     }
 
+    /** Parses one single-line flow value ([..], {..}, quoted or plain) at $t[$p]. */
+    function _yaml_parse_flow(string $t, int &$p, int $depth): mixed
+    {
+        if ($depth > 512) {
+            throw new RuntimeException('maximum nesting depth exceeded');
+        }
+        $n = strlen($t);
+        $skip = function () use ($t, $n, &$p): void {
+            while ($p < $n && ($t[$p] === ' ' || $t[$p] === "\t")) {
+                $p++;
+            }
+        };
+        $skip();
+        $c = $t[$p] ?? '';
+        if ($c === '[' || $c === '{') {
+            $close = $c === '[' ? ']' : '}';
+            $out = [];
+            $p++;
+            while (true) {
+                $skip();
+                if ($p >= $n) {
+                    throw new RuntimeException('unterminated flow collection');
+                }
+                if ($t[$p] === $close) {
+                    $p++;
+                    return $out;
+                }
+                if ($close === ']') {
+                    $out[] = _yaml_parse_flow($t, $p, $depth + 1);
+                } else {
+                    $k = $t[$p];
+                    if ($k === '[' || $k === '{') {
+                        throw new RuntimeException('complex mapping keys are not supported');
+                    }
+                    if ($k === '"' || $k === "'") {
+                        $e = _yaml_parse_quote_end(substr($t, $p));
+                        if ($e < 0) {
+                            throw new RuntimeException('unterminated quoted string');
+                        }
+                        $key = _yaml_parse_quoted(substr($t, $p, $e + 1));
+                        $p += $e + 1;
+                    } else {
+                        $s = $p;
+                        while ($p < $n && !in_array($t[$p], [',', '}'], true)
+                            && !($t[$p] === ':' && ($p + 1 >= $n || in_array($t[$p + 1], [' ', ',', '}'], true)))) {
+                            $p++;
+                        }
+                        $key = _yaml_parse_scalar(trim(substr($t, $s, $p - $s)));
+                    }
+                    $skip();
+                    if ($p >= $n || $t[$p] !== ':') {
+                        throw new RuntimeException('flow mapping entry needs a "key: value"');
+                    }
+                    $p++;
+                    $v = _yaml_parse_flow($t, $p, $depth + 1);
+                    $out[is_int($key) || is_string($key) ? $key : (string)$key] = $v;
+                }
+                $skip();
+                if ($p < $n && $t[$p] === ',') {
+                    $p++;
+                } elseif ($p >= $n || $t[$p] !== $close) {
+                    throw new RuntimeException($p >= $n ? 'unterminated flow collection' : 'expected "," or "' . $close . '"');
+                }
+            }
+        }
+        if ($c === '"' || $c === "'") {
+            $e = _yaml_parse_quote_end(substr($t, $p));
+            if ($e < 0) {
+                throw new RuntimeException('unterminated quoted string');
+            }
+            $q = _yaml_parse_quoted(substr($t, $p, $e + 1));
+            $p += $e + 1;
+            return $q;
+        }
+        $s = $p;
+        while ($p < $n && !in_array($t[$p], [',', ']', '}'], true)) {
+            $p++;
+        }
+        $tok = trim(substr($t, $s, $p - $s));
+        if ($tok === '') {
+            throw new RuntimeException('empty flow entry');
+        }
+        return _yaml_parse_scalar($tok);
+    }
+
     function _yaml_parse_scalar(string $t): mixed
     {
         if ($t === '' || $t === '~' || strcasecmp($t, 'null') === 0) {
@@ -238,7 +323,12 @@ if (!function_exists('yaml_parse')) {
             return [];
         }
         if ($t[0] === '[' || $t[0] === '{') {
-            throw new RuntimeException('flow collections are not supported');
+            $p = 0;
+            $v = _yaml_parse_flow($t, $p, 0);
+            if (trim(substr($t, $p)) !== '') {
+                throw new RuntimeException('unexpected text after flow collection');
+            }
+            return $v;
         }
         $l = strtolower($t);
         if (in_array($l, ['true', 'yes', 'on'], true)) {
@@ -352,8 +442,8 @@ if (!function_exists('yaml_parse')) {
     /**
      * Basic yaml_parse(): block mappings/sequences, plain and quoted scalars,
      * comments. $pos, $callbacks are ignored; only the first document is read.
-     * Not supported: flow collections (except [] and {}), block scalars
-     * (| and >), anchors, tags, multi-line scalars.
+     * Flow collections are supported on a single line only. Not supported:
+     * block scalars (| and >), anchors, tags, multi-line scalars.
      */
     function yaml_parse(string $input, int $pos = 0, ?int &$ndocs = null, array $callbacks = []): mixed
     {

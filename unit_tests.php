@@ -209,6 +209,22 @@ check('parse comments'                        , ['a' => 'x # y', 'b' => 2]      
 check('parse plain with colon'                , ['u' => 'http://x.y/z']                     , p("u: http://x.y/z\n"));
 check('parse CRLF'                            , ['a' => 1, 'b' => 2]                        , p("a: 1\r\nb: 2\r\n"));
 check('parse big int becomes float'           , 1.0E+25                                     , p("--- 10000000000000000000000000"));
+check('parse flow list'                       , [1, 2]                                      , p("--- [1, 2]"));
+check('parse flow map'                        , ['a' => 1, 'b' => 2]                        , p("{a: 1, b: 2}"));
+check('parse flow types'                      , [1, 2.5, true, null, 'x']                   , p("[1, 2.5, true, null, x]"));
+check('parse flow nested'                     , ['a' => [1, ['b' => 2]]]                    , p("{a: [1, {b: 2}]}"));
+check('parse flow quoted'                     , ['a, b', 'c]', "d'"]                        , p("[\"a, b\", 'c]', \"d'\"]"));
+check('parse flow json style'                 , ['a' => 1, 'b' => 'x']                      , p('{"a":1, "b":"x"}'));
+check('parse flow empty and trailing comma'   , [[], [1, 2]]                                , p("[[ ], [1, 2,]]"));
+check('parse flow as map value'               , ['p' => [80, 443], 'q' => 1]                , p("p: [80, 443]\nq: 1\n"));
+check('parse flow as list item'               , [[1, 2], ['a' => 1]]                        , p("- [1, 2]\n- {a: 1}\n"));
+check('parse flow with comment'               , ['a' => [1, 'x # y']]                       , p("a: [1, \"x # y\"] # note\n"));
+check('parse flow plain colon'                , ['a:b']                                     , p("[a:b]"));
+check('parse flow unterminated'               , false                                       , p("a: [1,\n"));
+check('parse flow trailing text'              , false                                       , p("a: [1] x\n"));
+check('parse flow key without value'          , false                                       , p("{a}"));
+check('parse flow complex key'                , false                                       , p("{[a]: 1}"));
+check('parse flow empty entry'                , false                                       , p("[a,,b]"));
 check('parse bad indent returns false'        , false                                       , p("a:\n    b: 1\n  c: 2\n"));
 check('parse unterminated quote returns false', false                                       , p("a: \"x\n"));
 check('parse warns on error', true, (function () {

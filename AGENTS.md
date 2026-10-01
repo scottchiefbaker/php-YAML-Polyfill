@@ -21,7 +21,7 @@ Two-file PHP 8.2+ project (no manifest, no CI): `php-yaml-polyfill.php` is a
 - Known intentional limits (don't "fix" without asking): empty arrays always
   emit `[]`, no anchors/tags/callbacks, encoding arg ignored (UTF-8), output
   not byte-identical to libyaml.
-- `yaml_parse()` is a block-style subset: no flow collections (except `[]`
-  and `{}`), block scalars (`|`, `>`), anchors, tags, multi-line scalars,
+- `yaml_parse()` is a block-style subset: flow collections (single-line only)
+  are supported; no block scalars (`|`, `>`), anchors, tags, multi-line scalars,
   multi-document, callbacks. Errors warn (`E_USER_WARNING`) and return false.
   `yes/no/on/off` parse as booleans (YAML 1.1, like PECL).
