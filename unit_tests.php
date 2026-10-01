@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-// Standalone tests for the yaml_emit() polyfill. Run: php unit_tests.php
+// Standalone tests for the yaml_emit()/yaml_parse() polyfill.
+// Run: php unit_tests.php [--filter=REGEX]  (case-insensitive, on check name)
 
 // Load the polyfill under another name so it is tested even if the PECL
 // extension is installed.
@@ -16,6 +17,16 @@ eval($src);
 
 $pass = 0;
 $fail = 0;
+$skip = 0;
+
+$filter = getopt('', ['filter:'])['filter'] ?? null;
+if ($filter !== null) {
+    $filter = '/' . str_replace('/', '\/', (string)$filter) . '/i';
+    if (@preg_match($filter, '') === false) {
+        fwrite(STDERR, "Invalid --filter regex\n");
+        exit(2);
+    }
+}
 
 // Colors only when stdout is a TTY and NO_COLOR is not set
 $useColor = (function_exists('posix_isatty') ? posix_isatty(STDOUT) : stream_isatty(STDOUT)) && getenv('NO_COLOR') === false;
@@ -27,7 +38,11 @@ function color(string $s, string $code): string
 
 function check(string $name, mixed $expected, mixed $actual): void
 {
-    global $pass, $fail;
+    global $pass, $fail, $skip, $filter;
+    if ($filter !== null && !preg_match($filter, $name)) {
+        $skip++;
+        return;
+    }
     if ($expected === $actual) {
         $pass++;
         echo color("PASS", "32") . "  $name\n";
@@ -208,5 +223,10 @@ foreach (['YAML_ANY_ENCODING', 'YAML_UTF8_ENCODING', 'YAML_UTF16LE_ENCODING', 'Y
     check("constant $c defined", true, defined($c));
 }
 
-echo "\n" . color("$pass passed", "32") . ", " . color("$fail failed", $fail > 0 ? "31" : "32") . "\n";
+echo "\n" . color("$pass passed", "32") . ", " . color("$fail failed", $fail > 0 ? "31" : "32")
+    . ($filter !== null ? ", $skip skipped" : '') . "\n";
+if ($filter !== null && $pass + $fail === 0) {
+    fwrite(STDERR, "No tests matched --filter\n");
+    exit(1);
+}
 exit($fail > 0 ? 1 : 0);

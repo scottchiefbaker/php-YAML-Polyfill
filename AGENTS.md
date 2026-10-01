@@ -8,6 +8,8 @@ Two-file PHP 8.2+ project (no manifest, no CI): `php-yaml-polyfill.php` is a
   use cases and leave niche features to the full PECL library. Prefer
   simplicity over completeness; don't add complexity for rare edge cases.
 - Run tests: `php unit_tests.php` (set `NO_COLOR=1` to disable colors).
+  Run a subset: `php unit_tests.php --filter=REGEX` (case-insensitive, matched
+  against check names; exits 1 if nothing matches).
 - Tests do not `include` the polyfill. They read `php-yaml-polyfill.php`,
   regex/str_replace its source (strips `declare(strict_types=1)`, renames
   `yaml_emit`/`yaml_parse` -> `*_polyfill`, forces both `function_exists`
