@@ -153,7 +153,8 @@ if ($result === false) {
 
 ## Limitations
 
-This polyfill favors simplicity over full spec compliance. Not supported:
+This polyfill favors simplicity over full spec compliance. YAML Features
+not supported:
 
 - Anchors, aliases, and merge keys (`&anchor`, `*alias`, `<<`).
 - Tags (`!!str`, `!!binary`, `!!timestamp`, `!php/object`, etc.),
