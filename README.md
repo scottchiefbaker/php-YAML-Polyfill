@@ -3,13 +3,13 @@
 A pure-PHP polyfill for the [php-yaml](https://bd808.com/pecl-file_formats-yaml/)
 extension, written for PHP 8.2+.
 
-This library provides the same core API - `yaml_emit()`, `yaml_parse()`, and
-friends - as a single, dependency-free PHP file, so projects that need simple,
+This library provides the same core API: `yaml_emit()`, `yaml_parse()`, etc.
+It is a single, dependency-free PHP file, so projects that need simple,
 reliable YAML input/output don't have to install a C extension.
 
 It aims to cover roughly 90% of real-world YAML usage. Output is valid,
 readable YAML, but it is **not** guaranteed to be byte-identical to libyaml.
-If you need byte-exact fidelity to libyaml, use the PECL extension.
+If you need byte-exact fidelity to libyaml, use the php-yaml.
 
 ## Features
 
@@ -25,25 +25,15 @@ If you need byte-exact fidelity to libyaml, use the PECL extension.
 - `DateTimeInterface` values are serialized as ISO-8601 strings; objects
   are serialized via `get_object_vars()`; `JsonSerializable` objects are
   serialized via `jsonSerialize()`.
-- The `YAML_ANY_ENCODING`, `YAML_UTF8_ENCODING`, `YAML_UTF16LE_ENCODING`,
-  `YAML_UTF16BE_ENCODING`, `YAML_ANY_BREAK`, `YAML_CR_BREAK`,
-  `YAML_LN_BREAK`, and `YAML_CRLN_BREAK` constants are defined when the
-  PECL extension isn't loaded, for API parity.
-- `YAML_POLYFILL` is defined (as `true`) when this polyfill's
-  implementations are the ones in use; it is never defined when the PECL
-  extension is active, so `defined('YAML_POLYFILL')` detects at runtime
-  which library is providing the `yaml_*()` functions.
 - The `$encoding` and `$linebreak` parameters are accepted for API parity;
   output is always UTF-8 with LF, CR, or CRLF line breaks.
 - Errors are intentional and well-behaved: parse/emit failures raise an
   `E_USER_WARNING` and return `false`, matching PECL behavior rather than
   throwing exceptions.
-- **Zero dependencies** - PHP 8.2+ core only, no extensions required.
 
 ## Requirements
 
-- PHP 8.2 or newer
-- Nothing else.
+- PHP 8.2+
 
 ## Installation
 
@@ -149,14 +139,6 @@ Array
 Only the first document in a stream is parsed, matching the PECL
 extension's behavior when `$pos` is 0:
 
-```php
-$yaml = "---\nfoo: 1\n...\n---\nfoo: 2\n...\n";
-
-$data = yaml_parse($yaml, 0, $ndocs);
-var_dump($ndocs);   // int(1)
-var_dump($data);    // ['foo' => 1]
-```
-
 ### Error handling
 
 Parse errors do not throw; they raise an `E_USER_WARNING` and return
@@ -195,15 +177,7 @@ This polyfill favors simplicity over full spec compliance. Not supported:
 Run the test suite with PHP from the repository root:
 
 ```
-php unit_tests.php
-```
-
-Use `--filter=REGEX` to run a subset (case-insensitive, matched against
-check names), and `NO_COLOR=1` to disable colored output:
-
-```
-php unit_tests.php --filter=parse
-NO_COLOR=1 php unit_tests.php
+php unit_tests.php [--filter PATTERN]
 ```
 
 ## License
