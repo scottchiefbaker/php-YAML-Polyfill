@@ -1,4 +1,4 @@
-# php-yaml-polyfill
+# yaml-polyfill
 
 A pure-PHP polyfill for the PECL php-yaml extension, written for PHP 8.2+.
 
@@ -46,7 +46,7 @@ Drop the file somewhere your autoloader (or `require` path) can find it, and
 require it once:
 
 ```php
-require_once('/path/to/php-yaml-polyfill.php');
+require_once('/path/to/yaml-polyfill.php');
 ```
 
 Every public function is wrapped in a `function_exists()` guard, so it is
@@ -57,7 +57,7 @@ safe to load even when the real PECL yaml extension is installed.
 ### Emitting YAML
 
 ```php
-require 'php-yaml-polyfill.php';
+require 'yaml-polyfill.php';
 
 $data = [
     'name'    => 'example',

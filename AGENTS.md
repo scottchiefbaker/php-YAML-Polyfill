@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Two-file PHP 8.2+ project (no manifest, no CI): `php-yaml-polyfill.php` is a
+Two-file PHP 8.2+ project (no manifest, no CI): `yaml-polyfill.php` is a
 `yaml_emit()` and `yaml_parse()` polyfill; `unit_tests.php` tests it.
 
 - Purpose: a small, lightweight polyfill for the PECL yaml extension's
@@ -10,11 +10,11 @@ Two-file PHP 8.2+ project (no manifest, no CI): `php-yaml-polyfill.php` is a
 - Run tests: `php unit_tests.php` (set `NO_COLOR=1` to disable colors).
   Run a subset: `php unit_tests.php --filter=REGEX` (case-insensitive, matched
   against check names; exits 1 if nothing matches).
-- Tests do not `include` the polyfill. They read `php-yaml-polyfill.php`,
+- Tests do not `include` the polyfill. They read `yaml-polyfill.php`,
   regex/str_replace its source (strips `declare(strict_types=1)`, renames
   `yaml_emit`/`yaml_parse` -> `*_polyfill`, forces both `function_exists`
   guards to true) and `eval` it. If you change a guard line, the `declare`
-  header, or a function name/signature text in `php-yaml-polyfill.php`, update
+  header, or a function name/signature text in `yaml-polyfill.php`, update
   those replacements in `unit_tests.php` or tests will silently break. Tests
   call `yaml_emit_polyfill()` / `yaml_parse_polyfill()`.
 - Both files use `declare(strict_types=1)`.

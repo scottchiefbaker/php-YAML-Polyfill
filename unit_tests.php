@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 // Load the polyfill under another name so it is tested even if the PECL
 // extension is installed.
-$src = file_get_contents(__DIR__ . '/php-yaml-polyfill.php');
+$src = file_get_contents(__DIR__ . '/yaml-polyfill.php');
 $src = preg_replace('/^<\?php\s*declare\(strict_types=1\);/', '', $src);
 $src = str_replace(
     [
