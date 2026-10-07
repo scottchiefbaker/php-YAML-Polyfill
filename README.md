@@ -175,7 +175,9 @@ not supported:
 
 ## Testing
 
-Run the test suite with PHP from the repository root:
+This library contains extensive unit tests. At the time of this writing there
+are over 130 unit tests. This helps maintain the quality and robustness of the
+library. Run the test suite from the repository root:
 
 ```
 php unit_tests.php [--filter PATTERN]
