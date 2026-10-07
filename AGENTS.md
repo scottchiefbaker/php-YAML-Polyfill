@@ -12,13 +12,11 @@ Two-file PHP 8.2+ project (no manifest, no CI): `yaml-polyfill.php` is a
   against check names; exits 1 if nothing matches).
   Quiet output: `--simple` only prints failing checks (with expected/actual
   diffs) and the summary line; composes with `--filter`.
-- Tests do not `include` the polyfill. They read `yaml-polyfill.php`,
-  regex/str_replace its source (strips `declare(strict_types=1)`, renames
-  `yaml_emit`/`yaml_parse` -> `*_polyfill`, forces both `function_exists`
-  guards to true) and `eval` it. If you change a guard line, the `declare`
-  header, or a function name/signature text in `yaml-polyfill.php`, update
-  those replacements in `unit_tests.php` or tests will silently break. Tests
-  call `yaml_emit_polyfill()` / `yaml_parse_polyfill()`.
+- Tests `require_once` the polyfill normally, then call the namespaced
+  implementations (for example, `YamlPolyfill\emit()` and
+  `YamlPolyfill\parse()`) directly so they test the polyfill even when PECL
+  YAML functions are already installed. Global PECL-compatible functions are
+  conditional wrappers around those implementations.
 - Both files use `declare(strict_types=1)`.
 - Known intentional limits (don't "fix" without asking): empty arrays always
   emit `[]`, no anchors/tags/callbacks, encoding arg ignored (UTF-8), output

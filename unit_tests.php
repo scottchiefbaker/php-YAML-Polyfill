@@ -4,26 +4,7 @@ declare(strict_types=1);
 // Standalone tests for the yaml_emit()/yaml_parse() polyfill.
 // Run: php unit_tests.php [-f|--filter=REGEX] [--simple]  (case-insensitive, on check name)
 
-// Load the polyfill under another name so it is tested even if the PECL
-// extension is installed.
-$src = file_get_contents(__DIR__ . '/yaml-polyfill.php');
-$src = preg_replace('/^<\?php\s*declare\(strict_types=1\);/', '', $src);
-$src = str_replace(
-    [
-        "if (!function_exists('yaml_emit')) {", "if (!function_exists('yaml_parse')) {",
-        "if (!function_exists('yaml_emit_file')) {", "if (!function_exists('yaml_parse_file')) {",
-        "if (!function_exists('yaml_parse_url')) {",
-        'function yaml_emit(', 'function yaml_parse(', 'function yaml_emit_file(', 'function yaml_parse_file(', 'function yaml_parse_url(',
-        'yaml_emit($data, $encoding, $linebreak)', 'yaml_parse($input, $pos, $ndocs, $callbacks)',
-    ],
-    [
-        'if (true) {', 'if (true) {', 'if (true) {', 'if (true) {', 'if (true) {',
-        'function yaml_emit_polyfill(', 'function yaml_parse_polyfill(', 'function yaml_emit_file_polyfill(', 'function yaml_parse_file_polyfill(', 'function yaml_parse_url_polyfill(',
-        'yaml_emit_polyfill($data, $encoding, $linebreak)', 'yaml_parse_polyfill($input, $pos, $ndocs, $callbacks)',
-    ],
-    $src
-);
-eval($src);
+require_once __DIR__ . '/yaml-polyfill.php';
 
 $pass = 0;
 $fail = 0;
@@ -71,7 +52,7 @@ function check(string $name, mixed $expected, mixed $actual): void
 
 function e(mixed $v): string
 {
-    return yaml_emit_polyfill($v);
+    return \YamlPolyfill\emit($v);
 }
 
 // Top-level scalars
@@ -138,9 +119,9 @@ check('key with colon quoted', "---\n\"a: b\": 1\n...\n", e(['a: b' => 1]));
 check('integer key unquoted' , "---\n5: a\nx: b\n...\n" , e([5 => 'a', 'x' => 'b']));
 
 // Line breaks
-check('linebreak CRLN', "---\r\na: 1\r\n...\r\n", yaml_emit_polyfill(['a' => 1], YAML_ANY_ENCODING, YAML_CRLN_BREAK));
-check('linebreak CR'  , "---\ra: 1\r...\r"      , yaml_emit_polyfill(['a' => 1], YAML_ANY_ENCODING, YAML_CR_BREAK));
-check('linebreak LN'  , "---\na: 1\n...\n"      , yaml_emit_polyfill(['a' => 1], YAML_ANY_ENCODING, YAML_LN_BREAK));
+check('linebreak CRLN', "---\r\na: 1\r\n...\r\n", \YamlPolyfill\emit(['a' => 1], YAML_ANY_ENCODING, YAML_CRLN_BREAK));
+check('linebreak CR'  , "---\ra: 1\r...\r"      , \YamlPolyfill\emit(['a' => 1], YAML_ANY_ENCODING, YAML_CR_BREAK));
+check('linebreak LN'  , "---\na: 1\n...\n"      , \YamlPolyfill\emit(['a' => 1], YAML_ANY_ENCODING, YAML_LN_BREAK));
 
 // Objects
 class JS implements JsonSerializable
@@ -190,7 +171,7 @@ check('depth guard throws', true, $threw);
 // yaml_parse
 function p(string $y): mixed
 {
-    return @yaml_parse_polyfill($y);
+    return @\YamlPolyfill\parse($y);
 }
 check('parse scalar'                          , 'hi'                                        , p("--- hi\n...\n"));
 check('parse empty'                           , null                                        , p(''));
@@ -250,7 +231,7 @@ check('parse unterminated quote returns false', false                           
 check('parse warns on error', true, (function () {
     $w = false;
     set_error_handler(function () use (&$w) { $w = true; return true; });
-    yaml_parse_polyfill("a: 'x\n");
+    \YamlPolyfill\parse("a: 'x\n");
     restore_error_handler();
     return $w;
 })());
@@ -266,24 +247,24 @@ foreach ([
 // File functions
 $tmp = tempnam(sys_get_temp_dir(), 'yml');
 
-check('emit_file returns true', true                      , yaml_emit_file_polyfill($tmp, ['a' => [1, 2]]));
+check('emit_file returns true', true                      , \YamlPolyfill\emit_file($tmp, ['a' => [1, 2]]));
 check('emit_file content'     , "---\na:\n- 1\n- 2\n...\n", file_get_contents($tmp));
-check('parse_file reads back' , ['a' => [1, 2]]           , yaml_parse_file_polyfill($tmp, 0, $nd));
+check('parse_file reads back' , ['a' => [1, 2]]           , \YamlPolyfill\parse_file($tmp, 0, $nd));
 check('parse_file ndocs'      , 1                         , $nd);
 
-check('parse_url file:// reads', ['a' => [1, 2]], yaml_parse_url_polyfill('file://' . $tmp, 0, $nd2));
+check('parse_url file:// reads', ['a' => [1, 2]], \YamlPolyfill\parse_url('file://' . $tmp, 0, $nd2));
 check('parse_url ndocs', 1, $nd2);
 unlink($tmp);
-check('parse_url missing returns false', false, @yaml_parse_url_polyfill('file://' . $tmp));
-check('parse_file missing returns false', false, @yaml_parse_file_polyfill($tmp));
-check('emit_file bad path returns false', false, @yaml_emit_file_polyfill('/nonexistent-dir/x.yml', 1));
+check('parse_url missing returns false', false, @\YamlPolyfill\parse_url('file://' . $tmp));
+check('parse_file missing returns false', false, @\YamlPolyfill\parse_file($tmp));
+check('emit_file bad path returns false', false, @\YamlPolyfill\emit_file('/nonexistent-dir/x.yml', 1));
 
 // Constants
 foreach (['YAML_ANY_ENCODING', 'YAML_UTF8_ENCODING', 'YAML_UTF16LE_ENCODING', 'YAML_UTF16BE_ENCODING',
           'YAML_ANY_BREAK', 'YAML_CR_BREAK', 'YAML_LN_BREAK', 'YAML_CRLN_BREAK'] as $c) {
     check("constant $c defined", true, defined($c));
 }
-check('constant YAML_POLYFILL defined', true, defined('YAML_POLYFILL'));
+check('constant YAML_POLYFILL defined', !function_exists('yaml_emit'), defined('YAML_POLYFILL'));
 
 echo "\n" . color("$pass passed", "32") . ", " . color("$fail failed", $fail > 0 ? "31" : "32")
     . ($filter !== null ? ", $skip skipped" : '') . "\n";
