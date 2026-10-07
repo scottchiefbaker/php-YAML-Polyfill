@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/yaml-polyfill.php';
 
+$nativeYamlLoaded = extension_loaded('yaml');
+
 $pass = 0;
 $fail = 0;
 $skip = 0;
@@ -13,6 +15,8 @@ $skip = 0;
 $opts   = getopt('f:', ['filter:', 'simple']);
 $filter = $opts['filter'] ?? $opts['f'] ?? null;
 $simple = isset($opts['simple']);
+
+echo 'Native PECL YAML: ' . ($nativeYamlLoaded ? 'installed' : 'not installed') . "\n";
 
 if ($filter !== null) {
     $filter = '/' . str_replace('/', '\/', (string)$filter) . '/i';
