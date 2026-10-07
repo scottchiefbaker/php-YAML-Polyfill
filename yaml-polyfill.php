@@ -88,8 +88,15 @@ function emit_scalar(mixed $v): string
         if (is_infinite($v)) {
             return $v > 0 ? '.inf' : '-.inf';
         }
-        $s = var_export($v, true);
-        return preg_match('/^-?\d+$/', $s) ? $s . '.0' : $s;
+        // PHP's scalar float conversion emits a concise decimal without
+        // consulting serialize_precision (unlike var_export/json_encode).
+        $s = (string)$v;
+
+        // Keep integer-looking floats distinguishable from integers in YAML.
+        if (preg_match('/^-?\d+$/', $s)) {
+            $s .= '.0';
+        }
+        return $s;
     }
     if (is_string($v)) {
         return emit_string($v);
