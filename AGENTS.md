@@ -1,7 +1,7 @@
 # AGENTS.md
 
 PHP 8.2+ library: a pure-PHP polyfill for the PECL yaml extension's
-`yaml_emit()` / `yaml_parse()` family. Zero dependencies. No CI.
+`yaml_emit()` / `yaml_parse()` family. Zero dependencies.
 
 ## Layout
 
@@ -11,7 +11,10 @@ PHP 8.2+ library: a pure-PHP polyfill for the PECL yaml extension's
   `function_exists`, so PECL wins when loaded.
 - `unit_tests.php`: standalone runner, no PHPUnit.
 - `composer.json`: autoloads `yaml-polyfill.php` via `files`.
-- `.gitattributes` export-ignores `AGENTS.md` and `unit_tests.php`.
+- `.github/workflows/tests.yml`: GitHub Actions on push and PR. Runs
+  `composer validate --strict`, `php -l`, and the suite both with `php -n`
+  (no PECL yaml) and with yaml loaded, on PHP 8.2 and 8.5.
+- `.gitattributes` export-ignores `AGENTS.md`, `unit_tests.php`, and `.github`.
 
 ## Commands
 
@@ -22,6 +25,10 @@ PHP 8.2+ library: a pure-PHP polyfill for the PECL yaml extension's
   disable colors.
 - Without the PECL extension: `php -n unit_tests.php`. Both modes must pass.
   The `YAML_POLYFILL` check expects the constant only when PECL is absent.
+- CI actions are pinned to version tags (`actions/checkout@v7`,
+  `shivammathur/setup-php@v2`), not commit SHAs. Keep that unless asked.
+- CI cannot be run locally. Check the YAML with `python3` and the commands
+  in the workflow by hand. Actual runs: `gh run list`.
 
 ## Testing quirks
 
