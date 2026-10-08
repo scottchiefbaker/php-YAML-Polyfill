@@ -19,46 +19,46 @@ $simple = isset($opts['simple']);
 echo 'Native PECL YAML: ' . ($nativeYamlLoaded ? 'installed' : 'not installed') . "\n";
 
 if ($filter !== null) {
-    $filter = '/' . str_replace('/', '\/', (string)$filter) . '/i';
-    if (@preg_match($filter, '') === false) {
-        fwrite(STDERR, "Invalid --filter regex\n");
-        exit(2);
-    }
+	$filter = '/' . str_replace('/', '\/', (string)$filter) . '/i';
+	if (@preg_match($filter, '') === false) {
+		fwrite(STDERR, "Invalid --filter regex\n");
+		exit(2);
+	}
 }
 
 // Colors only when stdout is a TTY and NO_COLOR is not set
 $useColor = (function_exists('posix_isatty') ? posix_isatty(STDOUT) : stream_isatty(STDOUT)) && getenv('NO_COLOR') === false;
 function color(string $s, string $code): string
 {
-    global $useColor;
-    return $useColor ? "\033[{$code}m$s\033[0m" : $s;
+	global $useColor;
+	return $useColor ? "\033[{$code}m$s\033[0m" : $s;
 }
 
 function check(string $name, mixed $expected, mixed $actual): void
 {
-    global $pass, $fail, $skip, $filter, $simple;
-    if ($filter !== null && !preg_match($filter, $name)) {
-        $skip++;
-        return;
-    }
-    if ($expected === $actual) {
-        $pass++;
-        if (!$simple) {
-            echo color("PASS", "32") . "  $name\n";
-        }
-    } else {
-        $fail++;
-        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-        $where  = basename($caller['file']) . ':' . $caller['line'];
-        echo color("FAIL", "31") . "  $name  ($where)\n";
-        echo "      expected: " . var_export($expected, true) . "\n";
-        echo "      actual:   " . var_export($actual, true) . "\n";
-    }
+	global $pass, $fail, $skip, $filter, $simple;
+	if ($filter !== null && !preg_match($filter, $name)) {
+		$skip++;
+		return;
+	}
+	if ($expected === $actual) {
+		$pass++;
+		if (!$simple) {
+			echo color("PASS", "32") . "  $name\n";
+		}
+	} else {
+		$fail++;
+		$caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+		$where  = basename($caller['file']) . ':' . $caller['line'];
+		echo color("FAIL", "31") . "  $name  ($where)\n";
+		echo "      expected: " . var_export($expected, true) . "\n";
+		echo "      actual:   " . var_export($actual, true) . "\n";
+	}
 }
 
 function e(mixed $v): string
 {
-    return \YamlPolyfill\emit($v);
+	return \YamlPolyfill\emit($v);
 }
 
 // Top-level scalars
@@ -89,31 +89,31 @@ check('float NAN' , "--- .nan\n...\n" , e(NAN));
 
 // String quoting
 $quoted = [
-    'empty string'      => ['', '""'],
-    'string "true"'     => ['true', '"true"'],
-    'string "null"'     => ['null', '"null"'],
-    'string "y"'        => ['y', '"y"'],
-    'string "~"'        => ['~', '"~"'],
-    'numeric string'    => ['12', '"12"'],
-    'float string'      => ['1.5', '"1.5"'],
-    'hex string'        => ['0x1F', '"0x1F"'],
-    'colon-space'       => ['a: b', '"a: b"'],
-    'trailing colon'    => ['a:', '"a:"'],
-    'space-hash'        => ['a #b', '"a #b"'],
-    'leading space'     => [' a', '" a"'],
-    'trailing space'    => ['a ', '"a "'],
-    'leading dash'      => ['-a', '"-a"'],
-    'leading bracket'   => ['[a', '"[a"'],
-    'leading ampersand' => ['&a', '"&a"'],
-    'leading asterisk'  => ['*a', '"*a"'],
-    'embedded quote'    => ["a\"b", 'a"b'],
-    'newline'           => ["a\nb", '"a\nb"'],
-    'tab'               => ["a\tb", '"a\tb"'],
-    'control char'      => ["a\x01b", '"a\x01b"'],
-    'backslash newline' => ["a\\\nb", '"a\\\\\nb"'],
+	'empty string'      => ['', '""'],
+	'string "true"'     => ['true', '"true"'],
+	'string "null"'     => ['null', '"null"'],
+	'string "y"'        => ['y', '"y"'],
+	'string "~"'        => ['~', '"~"'],
+	'numeric string'    => ['12', '"12"'],
+	'float string'      => ['1.5', '"1.5"'],
+	'hex string'        => ['0x1F', '"0x1F"'],
+	'colon-space'       => ['a: b', '"a: b"'],
+	'trailing colon'    => ['a:', '"a:"'],
+	'space-hash'        => ['a #b', '"a #b"'],
+	'leading space'     => [' a', '" a"'],
+	'trailing space'    => ['a ', '"a "'],
+	'leading dash'      => ['-a', '"-a"'],
+	'leading bracket'   => ['[a', '"[a"'],
+	'leading ampersand' => ['&a', '"&a"'],
+	'leading asterisk'  => ['*a', '"*a"'],
+	'embedded quote'    => ["a\"b", 'a"b'],
+	'newline'           => ["a\nb", '"a\nb"'],
+	'tab'               => ["a\tb", '"a\tb"'],
+	'control char'      => ["a\x01b", '"a\x01b"'],
+	'backslash newline' => ["a\\\nb", '"a\\\\\nb"'],
 ];
 foreach ($quoted as $name => [$in, $out]) {
-    check("quote: $name", "--- $out\n...\n", e($in));
+	check("quote: $name", "--- $out\n...\n", e($in));
 }
 check('plain string unquoted', "--- hello world\n...\n", e('hello world'));
 check('unicode unquoted'     , "--- héllo\n...\n"      , e('héllo'));
@@ -132,15 +132,15 @@ check('linebreak LN'  , "---\na: 1\n...\n"      , \YamlPolyfill\emit(['a' => 1],
 // Objects
 class JS implements JsonSerializable
 {
-    public function jsonSerialize(): mixed
-    {
-        return ['k' => 'v'];
-    }
+	public function jsonSerialize(): mixed
+	{
+		return ['k' => 'v'];
+	}
 }
 class Plain
 {
-    public $a = 1;
-    public $b = 'x';
+	public $a = 1;
+	public $b = 'x';
 }
 check('JsonSerializable' , "---\nk: v\n...\n"                    , e(new JS()));
 check('plain object'     , "---\na: 1\nb: x\n...\n"              , e(new Plain()));
@@ -150,8 +150,8 @@ check('DateTimeImmutable', "--- 2024-01-02T03:04:05+00:00\n...\n", e(new DateTim
 // Unsupported types
 $warned = false;
 set_error_handler(function () use (&$warned) {
-    $warned = true;
-    return true;
+	$warned = true;
+	return true;
 });
 $fh = fopen('php://memory', 'r');
 $res = e($fh);
@@ -164,20 +164,20 @@ check('resource warns'     , true             , $warned);
 // Depth guard
 $deep = 1;
 for ($i = 0; $i < 600; $i++) {
-    $deep = [$deep];
+	$deep = [$deep];
 }
 $threw = false;
 try {
-    e($deep);
+	e($deep);
 } catch (RuntimeException $ex) {
-    $threw = true;
+	$threw = true;
 }
 check('depth guard throws', true, $threw);
 
 // yaml_parse
 function p(string $y): mixed
 {
-    return @\YamlPolyfill\parse($y);
+	return @\YamlPolyfill\parse($y);
 }
 check('parse scalar'                          , 'hi'                                        , p("--- hi\n...\n"));
 check('parse empty'                           , null                                        , p(''));
@@ -188,8 +188,8 @@ check('parse list of maps'                    , [['x' => 1, 'z' => 2], ['x' => 3
 check('parse list under key, same indent'     , ['a' => [1, 2], 'b' => 3]                   , p("a:\n- 1\n- 2\nb: 3\n"));
 check('parse nested list'                     , [[1, 2], [3]]                               , p("- - 1\n  - 2\n- - 3\n"));
 check('parse types',
-      [null, null, true, false, 3, -4, 1.5, 0.0, 255, 8, INF, -INF],
-      p("- ~\n- null\n- true\n- no\n- 3\n- -4\n- 1.5\n- 0.0\n- 0xff\n- 010\n- .inf\n- -.inf\n"));
+	[null, null, true, false, 3, -4, 1.5, 0.0, 255, 8, INF, -INF],
+	p("- ~\n- null\n- true\n- no\n- 3\n- -4\n- 1.5\n- 0.0\n- 0xff\n- 010\n- .inf\n- -.inf\n"));
 check('parse nan'                             , true                                        , is_nan(p("--- .nan\n")));
 check('parse empty value is null'             , ['a' => null, 'b' => 1]                     , p("a:\nb: 1\n"));
 check('parse empty collections'               , ['a' => [], 'b' => []]                      , p("a: []\nb: {}\n"));
@@ -235,19 +235,19 @@ check('parse block not a header'              , ['a' => 'x |', 'b' => '|x']     
 check('parse bad indent returns false'        , false                                       , p("a:\n    b: 1\n  c: 2\n"));
 check('parse unterminated quote returns false', false                                       , p("a: \"x\n"));
 check('parse warns on error', true, (function () {
-    $w = false;
-    set_error_handler(function () use (&$w) { $w = true; return true; });
-    \YamlPolyfill\parse("a: 'x\n");
-    restore_error_handler();
-    return $w;
+	$w = false;
+	set_error_handler(function () use (&$w) { $w = true; return true; });
+	\YamlPolyfill\parse("a: 'x\n");
+	restore_error_handler();
+	return $w;
 })());
 foreach ([
-    'scalars'       => ['a', '', ' x', 'true', '1', '1.5', 'a: b', '#x', "l1\nl2", "q\"'\\", 'null', 'é', "\x01"],
-    'mixed'         => ['k' => [1, 2.5, null, true, ['n' => ['x', 'y']], [[1], [2, 3]]], '5' => 'five', 'a b' => 'c: d'],
-    'list of lists' => [[1, 2], [[3], []], ['a' => []]],
-    'floats'        => [1.0, -0.5, 1.0E+25, INF, -INF],
+	'scalars'       => ['a', '', ' x', 'true', '1', '1.5', 'a: b', '#x', "l1\nl2", "q\"'\\", 'null', 'é', "\x01"],
+	'mixed'         => ['k' => [1, 2.5, null, true, ['n' => ['x', 'y']], [[1], [2, 3]]], '5' => 'five', 'a b' => 'c: d'],
+	'list of lists' => [[1, 2], [[3], []], ['a' => []]],
+	'floats'        => [1.0, -0.5, 1.0E+25, INF, -INF],
 ] as $name => $data) {
-    check("round trip $name", $data, p(e($data)));
+	check("round trip $name", $data, p(e($data)));
 }
 
 // File functions
@@ -267,15 +267,17 @@ check('emit_file bad path returns false', false, @\YamlPolyfill\emit_file('/none
 
 // Constants
 foreach (['YAML_ANY_ENCODING', 'YAML_UTF8_ENCODING', 'YAML_UTF16LE_ENCODING', 'YAML_UTF16BE_ENCODING',
-          'YAML_ANY_BREAK', 'YAML_CR_BREAK', 'YAML_LN_BREAK', 'YAML_CRLN_BREAK'] as $c) {
-    check("constant $c defined", true, defined($c));
+	'YAML_ANY_BREAK', 'YAML_CR_BREAK', 'YAML_LN_BREAK', 'YAML_CRLN_BREAK'] as $c) {
+	check("constant $c defined", true, defined($c));
 }
 check('constant YAML_POLYFILL defined', !extension_loaded('yaml'), defined('YAML_POLYFILL'));
 
 echo "\n" . color("$pass passed", "32") . ", " . color("$fail failed", $fail > 0 ? "31" : "32")
-    . ($filter !== null ? ", $skip skipped" : '') . "\n";
+	. ($filter !== null ? ", $skip skipped" : '') . "\n";
 if ($filter !== null && $pass + $fail === 0) {
-    fwrite(STDERR, "No tests matched --filter\n");
-    exit(1);
+	fwrite(STDERR, "No tests matched --filter\n");
+	exit(1);
 }
 exit($fail > 0 ? 1 : 0);
+
+// vim: tabstop=4 shiftwidth=4 noexpandtab autoindent softtabstop=4
