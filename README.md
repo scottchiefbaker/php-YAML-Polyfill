@@ -142,7 +142,7 @@ Array
 ### Multi-document streams
 
 Only the first document in a stream is parsed, matching the PECL
-extension's behavior when `$pos` is 0:
+extension's behavior when `$pos` is 0.
 
 ### Error handling
 
