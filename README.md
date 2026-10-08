@@ -11,31 +11,6 @@ It aims to cover roughly 90% of real-world YAML usage. Output is valid,
 readable YAML, but it is **not** guaranteed to be byte-identical to libyaml.
 If you need byte-exact fidelity to libyaml, use the php-yaml.
 
-## Features
-
-- `yaml_emit($data, $encoding, $linebreak)` - serialize nested arrays,
-  scalars, and simple objects to block-style YAML. Also
-  `yaml_emit_file($filename, $data, ...)`.
-- `yaml_parse($input, $pos, &$ndocs, $callbacks)` - parse plain, quoted,
-  and block scalars, block mappings and sequences, single-line flow
-  collections, comments, and multi-document streams (first document).
-  Also `yaml_parse_file($filename, ...)` and `yaml_parse_url($url, ...)`.
-- Handles string quoting, integers, floats (including `.inf` / `.nan`),
-  booleans, and `null`.
-- `DateTimeInterface` values are serialized as ISO-8601 strings; objects
-  are serialized via `get_object_vars()`; `JsonSerializable` objects are
-  serialized via `jsonSerialize()`.
-- The `$encoding` and `$linebreak` parameters are accepted for API parity;
-  output is always UTF-8 with LF, CR, or CRLF line breaks.
-- Errors are intentional and well-behaved: parse/emit failures raise an
-  `E_USER_WARNING` and return `false`, matching PECL behavior rather than
-  throwing exceptions.
-- `YAML_POLYFILL` is defined (as `true`) when this polyfill's
-  implementations are the ones in use; it is never defined when the PECL
-  extension is active, so `defined('YAML_POLYFILL')` detects at runtime
-  which library is providing the `yaml_*()` functions.
-- **Zero dependencies**: PHP 8.2+ core only, no extensions required.
-
 ## Requirements
 
 - PHP 8.2+
@@ -138,6 +113,31 @@ Array
 
 )
 ```
+
+### Features
+
+- `yaml_emit($data, $encoding, $linebreak)` - serialize nested arrays,
+  scalars, and simple objects to block-style YAML. Also
+  `yaml_emit_file($filename, $data, ...)`.
+- `yaml_parse($input, $pos, &$ndocs, $callbacks)` - parse plain, quoted,
+  and block scalars, block mappings and sequences, single-line flow
+  collections, comments, and multi-document streams (first document).
+  Also `yaml_parse_file($filename, ...)` and `yaml_parse_url($url, ...)`.
+- Handles string quoting, integers, floats (including `.inf` / `.nan`),
+  booleans, and `null`.
+- `DateTimeInterface` values are serialized as ISO-8601 strings; objects
+  are serialized via `get_object_vars()`; `JsonSerializable` objects are
+  serialized via `jsonSerialize()`.
+- The `$encoding` and `$linebreak` parameters are accepted for API parity;
+  output is always UTF-8 with LF, CR, or CRLF line breaks.
+- Errors are intentional and well-behaved: parse/emit failures raise an
+  `E_USER_WARNING` and return `false`, matching PECL behavior rather than
+  throwing exceptions.
+- `YAML_POLYFILL` is defined (as `true`) when this polyfill's
+  implementations are the ones in use; it is never defined when the PECL
+  extension is active, so `defined('YAML_POLYFILL')` detects at runtime
+  which library is providing the `yaml_*()` functions.
+- **Zero dependencies**: PHP 8.2+ core only, no extensions required.
 
 ### Multi-document streams
 
