@@ -35,6 +35,8 @@ foreach ([
 
 namespace YamlPolyfill {
 
+const VERSION = '0.2.0';
+
 if (!\function_exists('yaml_emit') && !\defined('YAML_POLYFILL')) {
 	\define('YAML_POLYFILL', true);
 }
