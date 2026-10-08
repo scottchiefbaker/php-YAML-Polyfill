@@ -1,20 +1,18 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Basic yaml_emit(), yaml_parse(), yaml_emit_file(), yaml_parse_file()
- * and yaml_parse_url() polyfill (PHP 8.2+).
- *
- * Produces valid, readable YAML; not byte-identical to libyaml.
- * Limitations:
- *   - Empty arrays always emit as [] (map/list is indistinguishable).
- *   - No anchors, tags or callbacks.
- *   - $encoding is ignored; output is always UTF-8.
- */
+// Basic yaml_emit(), yaml_parse(), yaml_emit_file(), yaml_parse_file()
+// and yaml_parse_url() polyfill (PHP 8.2+).
+//
+// Produces valid, readable YAML; not byte-identical to libyaml.
+// Limitations:
+//  - Empty arrays always emit as [] (map/list is indistinguishable).
+//  - No anchors, tags or callbacks.
+//  - $encoding is ignored; output is always UTF-8.
 
 namespace {
 
-/** Global PECL-compatible constants; the YAML extension doesn't namespace these. */
+// Global PECL-compatible constants; the YAML extension doesn't namespace these.
 foreach ([
 	'YAML_ANY_ENCODING'		=> 0,
 	'YAML_UTF8_ENCODING'	=> 1,
@@ -121,7 +119,7 @@ function emit_normalize(mixed $v): mixed
 	return $v;
 }
 
-/** Returns lines (without trailing newline) for a collection. */
+// Returns lines (without trailing newline) for a collection.
 function emit_lines(array $a, int $depth): array
 {
 	if ($depth > 512) {
@@ -171,7 +169,7 @@ function emit(mixed $data, int $encoding = \YAML_ANY_ENCODING, int $linebreak = 
 	return $nl === "\n" ? $out : str_replace("\n", $nl, $out);
 }
 
-/** Index of the closing quote of a quoted token starting at $t[0], or -1. */
+// Index of the closing quote of a quoted token starting at $t[0], or -1.
 function parse_quote_end(string $t): int
 {
 	$q = $t[0];
@@ -189,7 +187,7 @@ function parse_quote_end(string $t): int
 	return -1;
 }
 
-/** Removes a trailing "# comment" (quote-aware) and trailing spaces. */
+// Removes a trailing "# comment" (quote-aware) and trailing spaces.
 function parse_strip(string $s): string
 {
 	$q = null;
@@ -215,7 +213,7 @@ function parse_strip(string $s): string
 	return rtrim($s);
 }
 
-/** Encodes a Unicode codepoint as a UTF-8 string (replacement for ext-mbstring's mb_chr()). */
+// Encodes a Unicode codepoint as a UTF-8 string (replacement for ext-mbstring's mb_chr()).
 function utf8_chr(int $cp): string
 {
 	if ($cp < 0x80) {
@@ -257,7 +255,7 @@ function parse_quoted(string $t): string
 	}, $body);
 }
 
-/** Parses one single-line flow value ([..], {..}, quoted or plain) at $t[$p]. */
+// Parses one single-line flow value ([..], {..}, quoted or plain) at $t[$p].
 function parse_flow(string $t, int &$p, int $depth): mixed
 {
 	if ($depth > 512) {
@@ -389,7 +387,7 @@ function parse_scalar(string $t): mixed
 	return $t;
 }
 
-/** Splits "key: rest" into [key, rest]; null if the line is not a mapping entry. */
+// Splits "key: rest" into [key, rest]; null if the line is not a mapping entry.
 function parse_split(string $t): ?array
 {
 	if ($t[0] === '[' || $t[0] === '{') {
@@ -469,9 +467,7 @@ function parse_block(array &$L, int &$i, int $depth): mixed
 	return $out;
 }
 
-/**
- * Consumes block scalar content and returns the header rewritten as a quoted scalar.
- */
+// Consumes block scalar content and returns the header rewritten as a quoted scalar.
 function parse_block_scalar(array $raws, int &$r, string $text, int $ind, bool $isDoc): ?string
 {
 	if (!preg_match('/^((?:-[ ]+)*)(.+?:[ ]+)?([|>])([-+1-9]{0,2})$/', $text, $m)
@@ -539,7 +535,7 @@ function parse_block_scalar(array $raws, int &$r, string $text, int $ind, bool $
 	return $dashes . $key . $json;
 }
 
-/** Parses the supported block-style YAML subset. */
+// Parses the supported block-style YAML subset.
 function parse(string $input, int $pos = 0, ?int &$ndocs = null, array $callbacks = []): mixed
 {
 	try {
