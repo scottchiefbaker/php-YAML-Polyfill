@@ -48,7 +48,9 @@ function check(string $name, mixed $expected, mixed $actual): void
         }
     } else {
         $fail++;
-        echo color("FAIL", "31") . "  $name\n";
+        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+        $where  = basename($caller['file']) . ':' . $caller['line'];
+        echo color("FAIL", "31") . "  $name  ($where)\n";
         echo "      expected: " . var_export($expected, true) . "\n";
         echo "      actual:   " . var_export($actual, true) . "\n";
     }
