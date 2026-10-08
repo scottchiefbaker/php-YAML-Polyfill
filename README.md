@@ -30,6 +30,11 @@ If you need byte-exact fidelity to libyaml, use the php-yaml.
 - Errors are intentional and well-behaved: parse/emit failures raise an
   `E_USER_WARNING` and return `false`, matching PECL behavior rather than
   throwing exceptions.
+- `YAML_POLYFILL` is defined (as `true`) when this polyfill's
+  implementations are the ones in use; it is never defined when the PECL
+  extension is active, so `defined('YAML_POLYFILL')` detects at runtime
+  which library is providing the `yaml_*()` functions.
+- **Zero dependencies**: PHP 8.2+ core only, no extensions required.
 
 ## Requirements
 
