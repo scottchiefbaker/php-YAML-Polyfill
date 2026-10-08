@@ -213,6 +213,21 @@ function parse_strip(string $s): string
     return rtrim($s);
 }
 
+/** Encodes a Unicode codepoint as a UTF-8 string (replacement for ext-mbstring's mb_chr()). */
+function utf8_chr(int $cp): string
+{
+    if ($cp < 0x80) {
+        return chr($cp);
+    }
+    if ($cp < 0x800) {
+        return chr(0xC0 | ($cp >> 6)) . chr(0x80 | ($cp & 0x3F));
+    }
+    if ($cp < 0x10000) {
+        return chr(0xE0 | ($cp >> 12)) . chr(0x80 | (($cp >> 6) & 0x3F)) . chr(0x80 | ($cp & 0x3F));
+    }
+    return chr(0xF0 | ($cp >> 18)) . chr(0x80 | (($cp >> 12) & 0x3F)) . chr(0x80 | (($cp >> 6) & 0x3F)) . chr(0x80 | ($cp & 0x3F));
+}
+
 function parse_quoted(string $t): string
 {
     $e = parse_quote_end($t);
@@ -229,7 +244,7 @@ function parse_quoted(string $t): string
     return preg_replace_callback('/\\\\(x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|.)/su', function ($m) {
         $c = $m[1];
         if (strlen($c) > 1) {
-            return mb_chr((int)hexdec(substr($c, 1)), 'UTF-8');
+            return utf8_chr((int)hexdec(substr($c, 1)));
         }
         return match ($c) {
             'n' => "\n", 't' => "\t", 'r' => "\r", '0' => "\0", 'e' => "\e",
