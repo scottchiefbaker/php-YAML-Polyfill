@@ -21,8 +21,8 @@ PHP 8.2+ library: a pure-PHP polyfill for the PECL yaml extension's
 - All tests: `php unit_tests.php` (or `composer test`). Currently 134 pass.
 - Subset: `php unit_tests.php -f REGEX` (`--filter=`). Case-insensitive,
   matched against check names. Exits 1 if nothing matches.
-- Failures only: `--simple` (composes with `-f`). Set `NO_COLOR=1` to
-  disable colors.
+- Failures only: `--simple` (composes with `-f`). Colors are off when
+  `NO_COLOR` is set or stdout is not a TTY.
 - Without the PECL extension: `php -n unit_tests.php`. Both modes must pass.
   The `YAML_POLYFILL` check expects the constant only when PECL is absent.
 - CI actions are pinned to version tags (`actions/checkout@v7`,
@@ -43,7 +43,10 @@ PHP 8.2+ library: a pure-PHP polyfill for the PECL yaml extension's
 - Both files use `declare(strict_types=1)` and tab indentation. Each ends
   with the vim modeline `// vim: tabstop=4 shiftwidth=4 noexpandtab ...`.
   Keep it.
-- Errors emit `E_USER_WARNING` and return `false`. Do not throw.
+- Parse errors emit `E_USER_WARNING` and return `false`. Do not throw.
+  `emit()` on an unsupported type emits `E_USER_WARNING` and encodes
+  `null` instead. `emit_file()`, `parse_file()`, and `parse_url()` return
+  `false` on I/O failure without a warning.
 - Prefer simplicity over completeness. Aim for ~90% of real-world use and
   leave niche YAML features out unless asked.
 
