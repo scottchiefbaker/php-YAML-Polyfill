@@ -11,24 +11,24 @@ declare(strict_types=1);
 //  - $encoding is ignored; output is always UTF-8.
 
 namespace {
+	// Global PECL-compatible constants; the YAML extension doesn't namespace these.
+	$pecl_constants = [
+		'YAML_ANY_ENCODING'		=> 0,
+		'YAML_UTF8_ENCODING'	=> 1,
+		'YAML_UTF16LE_ENCODING' => 2,
+		'YAML_UTF16BE_ENCODING' => 3,
 
-// Global PECL-compatible constants; the YAML extension doesn't namespace these.
-foreach ([
-	'YAML_ANY_ENCODING'		=> 0,
-	'YAML_UTF8_ENCODING'	=> 1,
-	'YAML_UTF16LE_ENCODING' => 2,
-	'YAML_UTF16BE_ENCODING' => 3,
+		'YAML_ANY_BREAK'		=> 0,
+		'YAML_CR_BREAK'			=> 1,
+		'YAML_LN_BREAK'			=> 2,
+		'YAML_CRLN_BREAK'		=> 3,
+	];
 
-	'YAML_ANY_BREAK'		=> 0,
-	'YAML_CR_BREAK'			=> 1,
-	'YAML_LN_BREAK'			=> 2,
-	'YAML_CRLN_BREAK'		=> 3,
-] as $name => $val) {
-	if (!defined($name)) {
-		define($name, $val);
+	foreach ($pecl_constants as $name => $val) {
+		if (!defined($name)) {
+			define($name, $val);
+		}
 	}
-}
-
 }
 
 namespace YamlPolyfill {
