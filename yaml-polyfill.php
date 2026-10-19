@@ -35,8 +35,8 @@ namespace YamlPolyfill {
 
 const VERSION = '0.2.0';
 
-if (!\function_exists('yaml_emit') && !\defined('YAML_POLYFILL')) {
-	\define('YAML_POLYFILL', true);
+if (!function_exists('yaml_emit') && !defined('YAML_POLYFILL')) {
+	define('YAML_POLYFILL', true);
 }
 
 function emit_string(string $s): string
@@ -101,7 +101,7 @@ function emit_scalar(mixed $v): string
 	if (is_string($v)) {
 		return emit_string($v);
 	}
-	\trigger_error('yaml_emit(): Unsupported type ' . \get_debug_type($v) . ', emitting null', E_USER_WARNING);
+	trigger_error('yaml_emit(): Unsupported type ' . get_debug_type($v) . ', emitting null', E_USER_WARNING);
 	return 'null';
 }
 
@@ -114,7 +114,7 @@ function emit_normalize(mixed $v): mixed
 		return $v->jsonSerialize();
 	}
 	if (is_object($v)) {
-		return \get_object_vars($v);
+		return get_object_vars($v);
 	}
 	return $v;
 }
@@ -151,7 +151,7 @@ function emit_lines(array $a, int $depth): array
 	return $lines;
 }
 
-function emit(mixed $data, int $encoding = \YAML_ANY_ENCODING, int $linebreak = \YAML_ANY_BREAK): string
+function emit(mixed $data, int $encoding = YAML_ANY_ENCODING, int $linebreak = YAML_ANY_BREAK): string
 {
 	$data = emit_normalize($data);
 	if (is_array($data) && $data !== []) {
@@ -162,8 +162,8 @@ function emit(mixed $data, int $encoding = \YAML_ANY_ENCODING, int $linebreak = 
 		$out = "--- " . $s . "\n...\n";
 	}
 	$nl = match ($linebreak) {
-		\YAML_CR_BREAK => "\r",
-		\YAML_CRLN_BREAK => "\r\n",
+		YAML_CR_BREAK => "\r",
+		YAML_CRLN_BREAK => "\r\n",
 		default => "\n",
 	};
 	return $nl === "\n" ? $out : str_replace("\n", $nl, $out);
@@ -578,12 +578,12 @@ function parse(string $input, int $pos = 0, ?int &$ndocs = null, array $callback
 		}
 		return $v;
 	} catch (\RuntimeException $e) {
-		\trigger_error('yaml_parse(): ' . $e->getMessage(), E_USER_WARNING);
+		trigger_error('yaml_parse(): ' . $e->getMessage(), E_USER_WARNING);
 		return false;
 	}
 }
 
-function emit_file(string $filename, mixed $data, int $encoding = \YAML_ANY_ENCODING, int $linebreak = \YAML_ANY_BREAK): bool
+function emit_file(string $filename, mixed $data, int $encoding = YAML_ANY_ENCODING, int $linebreak = YAML_ANY_BREAK): bool
 {
 	return file_put_contents($filename, emit($data, $encoding, $linebreak)) !== false;
 }
